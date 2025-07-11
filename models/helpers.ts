@@ -333,6 +333,11 @@ export function getTransactionStatusColumn(): ColumnConfig {
 
       return {
         template: `<Badge class="text-xs" color="${color}">${label}</Badge>`,
+        metadata: {
+          status,
+          color,
+          label,
+        },
       };
     },
   };
@@ -707,6 +712,11 @@ export function getDocStatusListColumn(): ColumnConfig {
 
       return {
         template: `<Badge class="text-xs" color="${color}">${label}</Badge>`,
+        metadata: {
+          status,
+          color,
+          label,
+        },
       };
     },
   };
@@ -1087,10 +1097,22 @@ export async function getPricingRule(
       continue;
     }
 
+    const itemQuantity: Record<string, number> = {};
+
+    for (const item of doc.items) {
+      if (!item?.item) continue;
+
+      if (!itemQuantity[item.item]) {
+        itemQuantity[item.item] = item.quantity ?? 0;
+      } else {
+        itemQuantity[item.item] += item.quantity ?? 0;
+      }
+    }
+
     const filtered = filterPricingRules(
       doc as SalesInvoice,
       pricingRuleDocsForItem,
-      item.quantity as number,
+      itemQuantity[item.item as string],
       item.amount as Money
     );
 
